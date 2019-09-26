@@ -1,6 +1,10 @@
 #!/usr/bin/python3
 
-# UDP client generator, The generator tries to keep a specified number of clients active sending udp data to a udp server. When a client is started the generator randomly chooses a model to use for the client. The model contains information about the size of the packets that should be sent, number of packets to send before the client ends and how many packets per minute the client should send.
+# UDP client generator, The generator tries to keep a specified number of clients active sending udp data to a udp server. 
+# When a client is started the generator randomly chooses a model to use for the client. 
+# The model contains information about the size of the packets that should be sent,
+# number of packets to send before the client ends and how many packets per minute the client should send.
+# The NUM_SEONDS_TO_RUN specifies how many seconds that the generator should run
 
 import socket
 import time
@@ -8,6 +12,7 @@ import threading
 import logging
 import string
 import random
+import os
 
 # tests give that maximum speed on virtual env is 0.5 Gbps and about 45000 packets per sec
 
@@ -23,8 +28,8 @@ m5 = [300, 10000, 200]
 
 all_models = [m1,m2,m3,m4,m5]
 #all_models = [m0]
-
 list_of_clients = []
+NUM_SECONDS_TO_RUN = 10*60  # specifies the time that this script will run
 
 # Returns a randomized string with a specified length
 def randomString(stringLength=10):
@@ -77,8 +82,11 @@ if __name__ == "__main__":
     SLEEP_TIME_ENOUGH_CLIENTS = 0.1
     client_id = 0
 
+    start_time = time.time()
+    TIME_LEFT = True
+
     # Loop tries to keep specified number of clients active, sleeps a short time if there is enough of clients
-    while True:
+    while TIME_LEFT:
         num_active_threads = threading.active_count() - 1 #remove main thread (this)
         if num_active_threads < NUM_CLIENTS:
             num_clients_to_start = NUM_CLIENTS - num_active_threads
@@ -89,5 +97,11 @@ if __name__ == "__main__":
                 start_client(client_id,model_chosen)
                 client_id = client_id + 1
         else:
-            time.sleep(SLEEP_TIME_ENOUGH_CLIENTS)
+            time_now = time.time()
+            if time_now - start_time > NUM_SECONDS_TO_RUN:
+                print "Times up! " + str(NUM_SECONDS_TO_RUN) +" sec has now passed, exiting..."
+                TIME_LEFT = False
+                os._exit(1)
+            else:
+                time.sleep(SLEEP_TIME_ENOUGH_CLIENTS)
 
