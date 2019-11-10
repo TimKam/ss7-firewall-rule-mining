@@ -29,7 +29,7 @@ m5 = [300, 10000, 200]
 all_models = [m1,m2,m3,m4,m5]
 #all_models = [m0]
 list_of_clients = []
-NUM_SECONDS_TO_RUN = 10*60  # specifies the time that this script will run
+NUM_SECONDS_TO_RUN = 10*1  # specifies the time that this script will run
 
 # Returns a randomized string with a specified length
 def randomString(stringLength=10):
@@ -78,7 +78,7 @@ if __name__ == "__main__":
 
     num_models = len(all_models)
     num_packets_to_send = 0
-    NUM_CLIENTS = 100
+    NUM_CLIENTS = 2
     SLEEP_TIME_ENOUGH_CLIENTS = 0.1
     client_id = 0
 

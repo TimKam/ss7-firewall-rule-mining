@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 ## Tests the m3u_pcap_parser
 
 import unittest
