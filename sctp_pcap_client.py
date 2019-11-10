@@ -1,5 +1,9 @@
 #!/usr/bin/python3
 
+## SCTP client generator, uses pcap files to start multipls sctp clients that reads the pcap files and send the packets in the pcap file to a specified server
+# The client generator will run for a specified number of seconds and will try to keep a number of clients rnning in parallel.
+# usage: use --help to see the input arguments
+
 import socket
 import sctp
 import argparse
@@ -95,6 +99,10 @@ if __name__ == '__main__':
                         help='server port (0-65536)', default=36412)
     parser.add_argument('--dir', metavar='<pcap file dir>', type=str,
                         help='each client shooses an pcap file in the directory given', required=True)
+    parser.add_argument('--num_clients', metavar='<number of clients>', type=int,
+                        help='Number of parallel sctp clients that this script will try to keep running', default=5)
+    parser.add_argument('--sec_to_run', metavar='<number of seconds to run>', type=int,
+                        help='The client generator will try to run the specified number of clients for this time', default=30)
 
     args = parser.parse_args()
     #file_name = args.pcap
@@ -103,11 +111,10 @@ if __name__ == '__main__':
     dst_port = args.dport
 
     pcap_dir = args.dir
+    num_clients = args.num_clients
     pcap_files = getPcapFilesInDir(pcap_dir)
    
-    NUM_SECONDS_TO_RUN = 30  # specifies the time that this script will run
     clients_started = 0
-    NUM_CLIENTS = 5
     SLEEP_TIME_ENOUGH_CLIENTS = 0.1
     MAX_SRC_PORT = 65536
     
@@ -119,8 +126,8 @@ if __name__ == '__main__':
 
     while TIME_LEFT:
         num_active_threads = threading.active_count() - 1 #remove main thread (this)
-        if num_active_threads < NUM_CLIENTS:
-            num_clients_to_start = NUM_CLIENTS - num_active_threads
+        if num_active_threads < num_clients:
+            num_clients_to_start = num_clients - num_active_threads
             for i in range(0,num_clients_to_start):
                 pcap_file = random.choice(pcap_files)
                 src_port += 1
@@ -131,8 +138,8 @@ if __name__ == '__main__':
 
         else:
             time_now = time.time()
-            if time_now - start_time > NUM_SECONDS_TO_RUN:
-                print("Times up! " + str(NUM_SECONDS_TO_RUN) +" sec has now passed, exiting...")
+            if time_now - start_time > sec_to_sun:
+                print("Times up! " + str(sec_to_run) +" sec has now passed, exiting...")
                 #for client in list_of_clients:
                 # TODO kill thread
                     
