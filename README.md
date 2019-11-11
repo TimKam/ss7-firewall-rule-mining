@@ -15,12 +15,12 @@ the output csv file can then be used to make an offline analysis to tell if an a
 
 once offline is working the algorithm and methds used to find the attacks in offline methods could be used to prevent the attacks in on line mode. 
 
-##Requirements:
-###pysctp to be able to send and recive sctp messages (LGPL license)
+## Requirements:
+### pysctp to be able to send and recive sctp messages (LGPL license)
 - sudo apt-get install libsctp-dev
 - pip3 install git+https://github.com/P1sec/pysctp.git
 
-###sniff packets from pcap file
+### sniff packets from pcap file
 - sudo pip3 install python3-scapy
 - sudo pip3 install scapy
 
