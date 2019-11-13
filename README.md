@@ -51,6 +51,8 @@ once offline is working the algorithm and methds used to find the attacks in off
 
 - sctp_pcap_client.py - script that starts a certain amount of pcap clients, each client uses a pcap file to know what to send and how often. these files have been created by the m3u_pcap_splitter.py script.
 
+- sctp_invoke_client.py - script that uses a list of agents to create clients that sends invoke update request messages to a sctp server.
+
 - flatten_sctp.py - In order to make it more easy to view the SCTP messages in a pcap file all SCTP chunks are seperated into its own signal and the output is stored in a new pcap file
 
 ### Test files
