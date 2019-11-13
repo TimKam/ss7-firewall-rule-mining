@@ -38,25 +38,14 @@ def getZoneDict():
 # the list is stored as a list of agents where each agent has a list of 
 # movements containing zone id and time to be in each zone
 #
-# @param[out] agent_list    list of agents, each agent has a list of movements which contains zone id and time to stay in each zone
+# @param[out] agent_list    list of agents, each agent has a list of movements which contains zone ids
 #
 def getAgentList():
-    with open('walk.json') as json_file:
+    with open('walk2.json') as json_file:
         data = json.load(json_file)
         zones_list = data['zones']
-        log_list = data['log']
-        agent_list = []
-
-        for log in log_list:
-
-            #print('time: ' + log['time'])
-            agents = log['agents']
-            #for agent in agents:
-            #    print("agent id: ", agent['id'], agent['zone'])
-
-    #TODO add real list
-    agent_list.append([[1,5],[2,4]])
-    agent_list.append([[2,10],[1,5]])
+        agent_list = data['clients']
+    
     return agent_list
 
 ## starts a client on a new thread
@@ -126,17 +115,19 @@ def invokeClient(agent_id, layer, src_port, dst_port):
     index = 0
     stream_id = 0
     imsi = bytes.fromhex(imsi_dict[str(agent_id)])
-    agent_list_data = agent_list[agent_id]
+    agent_list_data = agent_list[str(agent_id)]
 
     sctpDataPkt = SCTPChunkData(reserved=0, delay_sack=0, unordered=0, beginning=1, ending=1, stream_id=layer.stream_id, proto_id=layer.proto_id, stream_seq=layer.stream_seq, tsn=layer.tsn, data=layer.data)
-
-    for zone_time in agent_list_data:
-        zone_id = zone_time[0]
-        time_sec = zone_time[1]
-        msc = zone_dict[str(zone_id)][0]
-        vlr = zone_dict[str(zone_id)][1]
-        sctpDataPkt.data = updateImsiVlrMscInPacket(imsi, vlr, msc, sctpDataPkt.data)
-        sk.sctp_send(msg=sctpDataPkt.data,ppid=0x03000000,flags=0, stream=stream_id)
+    prev_msc = bytes.fromhex("000000")
+    for position in agent_list_data["positions"]:
+        time_sec = 1 #hard coded at the moment
+        msc = zone_dict[position][0]
+        vlr = zone_dict[position][1]
+        #only send packet if msc changes, its only then an invoke update request is needed
+        if prev_msc != msc:
+            sctpDataPkt.data = updateImsiVlrMscInPacket(imsi, vlr, msc, sctpDataPkt.data)
+            sk.sctp_send(msg=sctpDataPkt.data,ppid=0x03000000,flags=0, stream=stream_id)
+            prev_msc = msc
         time.sleep(time_sec)
 
 ## returns an dictionary containing the imsi number, if the file containing the imsi
