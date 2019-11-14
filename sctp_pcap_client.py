@@ -89,8 +89,6 @@ def getPcapFilesInDir(file_dir):
 ## main function
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='SCTP pcap client creator')
-   # parser.add_argument('--pcap', metavar='<pcap file name>',
-    #                    help='pcap file to parse', required=True)
     #parser.add_argument('--stream', metavar='<sctp stream id>', type=int,
     #                    help='id of the sctp stream (0-9)', default=0)
    # parser.add_argument('--sport', metavar='<sctp src port>', type=int,
@@ -108,9 +106,12 @@ if __name__ == '__main__':
     #file_name = args.pcap
     #stream_id = args.stream
     #src_port = args.sport
+    src_port = 10000
+    stream_id = 0
     dst_port = args.dport
 
     pcap_dir = args.dir
+    sec_to_run = args.sec_to_run
     num_clients = args.num_clients
     pcap_files = getPcapFilesInDir(pcap_dir)
    

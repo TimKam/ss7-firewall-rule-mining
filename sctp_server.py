@@ -84,7 +84,7 @@ if __name__ == '__main__':
     parser.add_argument('--port', metavar='<sctp server port>', type=int,
                         help='server port (0-65536)', default=36412)
     parser.add_argument('--conn', metavar='<number of allowed connections>', type=int,
-                        help='The number of allowed connections, which is also the number of threads that can work in parallel', default=100)
+                        help='The number of allowed connections, which is also the number of threads that can work in parallel', default=500)
 
     args = parser.parse_args()
     listen_port = args.port
