@@ -1,0 +1,96 @@
+#cy {
+    width: 1000px;
+    height: 500px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+body {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+.button {
+    background-color: #2A4765;
+    color: #fff;
+    line-height: 20px;
+    padding: 5px;
+    margin: 10px;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+}
+
+.button:active {
+    background-color: #73A790;
+  }
+
+.interaction-div {
+    margin: auto;
+    width: 530px;
+    padding: 10px;
+    display: flex;
+}
+
+.reload-hint {
+    margin: auto;
+    width: 279px;
+    display: flex;
+}
+.controls {
+    padding-bottom: 50px;
+    margin-right: 20px;
+    margin-left: 20px;
+}
+  
+.controls .button {
+    max-width: 250px;
+    display: block;
+}
+
+.button {
+    padding: 5px;
+}
+
+#legend {
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+#config {
+    font-weight: bold;
+    margin-top: 5px;
+}
+  
+.legend-item {
+    padding: 5px;
+    margin: 5px;
+}
+
+.config-item {
+    padding: 5px;
+    margin: 5px;
+}
+
+.hubs {
+    background-color: #73A790;
+}
+
+.attacker {
+    background-color: #EABAB9;
+}
+
+.ordinary {
+    background-color: #545454;
+    color: #FFF;
+}
+
+h2 {
+    text-align: center;
+}
+
+a.disabled {
+    pointer-events: none;
+    cursor: default;
+    background-color: #ccc;
+}

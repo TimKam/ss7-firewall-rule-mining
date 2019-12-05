@@ -1,0 +1,47 @@
+<template>
+  <div class="page" data-name="home">
+    <!-- Top Navbar -->
+    <div class="navbar">
+      <div class="navbar-inner">
+        <div class="title sliding">SS7 Attack Simulator</div>
+        <div class="title-large">
+          <div class="title-large-text">SS7 Attack Simulator</div>
+        </div>
+      </div>
+    </div>
+    <!-- Toolbar-->
+    <div class="toolbar toolbar-bottom">
+      <div class="toolbar-inner">
+        <a href="https://people.cs.umu.se/tkampik/" class="link external" target="_blank">Sundqvist, Blöcker, Kampik</a>
+        <a href="https://www.umu.se/" class="link external" target="_blank">Umeå University</a>
+      </div>
+    </div>
+    <!-- Scrollable page content-->
+    <div class="page-content">
+      <div class="block">
+          <div class="intro-div">
+            <div class="intro-text">
+                This simulator generates SS7 traffic for a set of agents, some of which are send malicious messages.
+                The purpose of the simulator is the creation of test bed data for anomaly detection purposes.
+            </div>
+          </div>
+          <div id="arena-grid"></div>
+          <div id="legend">
+              <div class="legend-item zone-1">Zone 1</div>
+              <div class="legend-item zone-2">Zone 2</div>
+              <div class="legend-item zone-3">Zone 3</div>
+              <div class="legend-item zone-4">Zone 4</div>
+          </div>
+          <br>
+          <div id="analysis"></div>
+          <div class="controls">
+              <a class="button button-fill log-button" id="log-button" target="_blank">Generate log</a>
+              <a class="button button-fill restart-button">Restart</a>
+          </div>
+      </div>
+    </div>
+  </div>
+</template>
+<script>
+export default {}
+</script>
