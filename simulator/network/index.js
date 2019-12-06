@@ -1,17 +1,17 @@
 // URL for config state management
 const url = new URL(window.location.href)
 
-const nodParam = Number(url.searchParams.get('nod'))
-const aggParam = Number(url.searchParams.get('agg'))
-const fixParam = Number(url.searchParams.get('fix'))
-const speParam = Number(url.searchParams.get('spe'))
+const nodParam = url.searchParams.get('nod')
+const aggParam = url.searchParams.get('agg')
+const fixParam = url.searchParams.get('fix')
+const speParam = url.searchParams.get('spe')
 
 // configuration settings
-const numberOfNodes = nodParam ? nodParam : 40
-const hubFixation = fixParam ? fixParam / 100 : 0.5
-const aggressionLevel = aggParam ? aggParam / 100 : 0.5
+const numberOfNodes = nodParam ? Number(nodParam) : 40
+const hubFixation = fixParam ? Number(fixParam) / 100 : 0.5
+const aggressionLevel = aggParam ? Number(aggParam) / 100 : 0.5
 const numberOfHubs = 3
-const speed = speParam ? 5000 / speParam : 500
+const speed = speParam ? 5000 / Number(speParam) : 500
 let showAttacker = false
 
 // "file global" object to manage graph library, edges, nodes, hubs, and attackers
@@ -23,6 +23,11 @@ let attacker
 
 // utils
 const genRandomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min
+// https://stackoverflow.com/questions/30720103/generate-random-numbers-with-logarithmic-distribution-and-custom-slope
+const genLogDist = (zmii, max) => 
+    Math.floor(Math.log((Math.random()*(Math.pow(zmii, max)-1.0))+1.0) / Math.log(zmii));
+
+
 
 // edge creation functions (helpers)
 const genRandomTarget = source => {
@@ -63,7 +68,8 @@ const genGraphBasedConnection = (source, target) => {
         })
         const sortedDistances = distances.sort((a, b) => a.distance > b.distance)
         sortedDistances.shift()
-        const index = Math.floor(Math.random() * Math.random() * Math.random() * (sortedDistances.length - numberOfNodes / 5))
+        const index = lnRandomScaled(4, 1, sortedDistances.length - numberOfNodes / 5)
+        // Math.floor(Math.random() * Math.random() * Math.random() * (sortedDistances.length - numberOfNodes / 5))
         
         const result = { source, target: sortedDistances[index].id }
         return result
