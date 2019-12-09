@@ -49,6 +49,12 @@ const genGraphBasedConnection = (source, target) => {
         })
         return { source, target }
     }
+    if (hubs.indexOf(Number(source)) === -1 && Math.random() < 0.15) {
+        source = Number(hubs[Math.floor(Math.random() * hubs.length)])
+        const hubsWithoutSource = hubs.filter(hub => hub != source)
+        target = Number(hubsWithoutSource[Math.floor(Math.random() * hubsWithoutSource.length)])
+        return { source, target }
+    }
     if (!attacker) {
         noHubNodes = nodes.filter(node => hubs.indexOf(node.data.id) === -1)
         attacker = nodes[genRandomInt(0, nodes.length - 1)].data.id
@@ -68,7 +74,7 @@ const genGraphBasedConnection = (source, target) => {
         })
         const sortedDistances = distances.sort((a, b) => a.distance > b.distance)
         sortedDistances.shift()
-        const index = lnRandomScaled(4, 1, sortedDistances.length - numberOfNodes / 5)
+        const index = lnRandomScaled(2.75, 1.5, sortedDistances.length - numberOfNodes / 5)
         // Math.floor(Math.random() * Math.random() * Math.random() * (sortedDistances.length - numberOfNodes / 5))
         
         const result = { source, target: sortedDistances[index].id }

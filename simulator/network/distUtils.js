@@ -47,7 +47,7 @@ function lnRandomScaled(gmean, gstddev, max)
 
     r = r * Math.log(gstddev) + Math.log(gmean)
     
-    r = Math.round(Math.exp(r))
-    if (r > max) return 0
+    r = Math.round(Math.exp(r)) - 1
+    if (r > max && r < 0) return 0
 	return r
 }
