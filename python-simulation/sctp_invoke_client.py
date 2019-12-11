@@ -17,9 +17,14 @@ import glob
 import random
 import copy
 import json
+import enum
 
 LOG_FILE = 'log_sctp_generator.log'
 list_of_clients = []
+
+class AttackEnum(enum.Enum): 
+    invoke = 1 
+    dod = 2
 
 ## read a json list which contains a list of zones and their corresponding msc and vlr
 #
@@ -48,15 +53,30 @@ def getAgentList():
     
     return agent_list
 
+## Reads a json file containing movement in a grid world
+# the list is stored as a list of agents where each agent has a list of 
+# movements containing zone id and time to be in each zone
+# This list contains the msc and vlr in which the invoke attacker is present in
+#
+# @param[out] agent_list    list of attack agents, each agent has a list of movements which contains zone ids
+#
+def getAttackAgentList(file_name):
+    with open(file_name) as json_file:
+        data = json.load(json_file)
+        agent_list = data['clients']
+    
+    return agent_list
+
+
 ## starts a client on a new thread
 # @param[in] agent_id   The id of the agent, is used to fetch data for the agent
 # @param[in] layer  The data that shall be sent for the invoke client
 # @param[in] src_port   the src port to use when sending sctp messages
 # @param[in] dst_port   The server port to connect to
 #
-def start_client(agent_id, layer, src_port, dst_port):
+def startClient(agent_id, layer, src_port, dst_port, agent_walk):
     global list_of_clients
-    client = threading.Thread(target=invokeClient, args=(agent_id, layer, src_port, dst_port))
+    client = threading.Thread(target=invokeClient, args=(agent_id, layer, src_port, dst_port, agent_walk))
     client.start()
     list_of_clients.append(client)
 
@@ -104,10 +124,12 @@ def updateImsiVlrMscInPacket(imsi, vlr, msc, data):
 # @param[in] layer      the sctp chunk data
 # @param[in] src_port   the sctp src port that is used when sending messages to the server
 # @param[in] dst_port   the port of the sctp server
+# @param[in] agent_walk A list of movement through msc zones
+
 #
-def invokeClient(agent_id, layer, src_port, dst_port):
-    global agent_list
+def invokeClient(agent_id, layer, src_port, dst_port, agent_walk):
     global zone_dict
+
     sk = sctp.sctpsocket_tcp(socket.AF_INET)
     sk.bind(('', src_port))
     sk.connect(("127.0.0.1", dst_port))
@@ -115,12 +137,10 @@ def invokeClient(agent_id, layer, src_port, dst_port):
     index = 0
     stream_id = 0
     imsi = bytes.fromhex(imsi_dict[str(agent_id)])
-    agent_list_data = agent_list[str(agent_id)]
-
     sctpDataPkt = SCTPChunkData(reserved=0, delay_sack=0, unordered=0, beginning=1, ending=1, stream_id=layer.stream_id, proto_id=layer.proto_id, stream_seq=layer.stream_seq, tsn=layer.tsn, data=layer.data)
     prev_msc = bytes.fromhex("000000")
-    for position in agent_list_data["positions"]:
-        time_sec = 1 #hard coded at the moment
+
+    for position in agent_walk["positions"]:
         msc = zone_dict[position][0]
         vlr = zone_dict[position][1]
         #only send packet if msc changes, its only then an invoke update request is needed
@@ -128,7 +148,85 @@ def invokeClient(agent_id, layer, src_port, dst_port):
             sctpDataPkt.data = updateImsiVlrMscInPacket(imsi, vlr, msc, sctpDataPkt.data)
             sk.sctp_send(msg=sctpDataPkt.data,ppid=0x03000000,flags=0, stream=stream_id)
             prev_msc = msc
+        
+        time_sec = 1 #hard coded at the moment
         time.sleep(time_sec)
+
+## A sctp attack client sending invoke update packets is started, 
+# the client will wait with the attack until the time sent in
+# @param[in] agent_id       an id that is used to fecth agent information
+# @param[in] layer          the sctp chunk data
+# @param[in] src_port       the sctp src port that is used when sending messages to the server
+# @param[in] dst_port       the port of the sctp server
+# @param[in] agent_walk     A list of movement through msc zones
+# @param[in] time_for_attack    The time the attack should occur (unix epoc)
+#
+def invokeClientAttack(agent_id, layer, src_port, dst_port, agent_walk, time_for_attack):
+    global zone_dict
+
+    sk = sctp.sctpsocket_tcp(socket.AF_INET)
+    sk.bind(('', src_port))
+    sk.connect(("127.0.0.1", dst_port))
+    sctp_count = 0
+    index = 0
+    stream_id = 0
+    imsi = bytes.fromhex(imsi_dict[str(agent_id)])
+    sctpDataPkt = SCTPChunkData(reserved=0, delay_sack=0, unordered=0, beginning=1, ending=1, stream_id=layer.stream_id, proto_id=layer.proto_id, stream_seq=layer.stream_seq, tsn=layer.tsn, data=layer.data)
+    prev_msc = bytes.fromhex("000000")
+    
+    time_before_attack = time_for_attack - time.time()
+    if time_before_attack > 0:
+        time.sleep(time_before_attack)
+    else:
+        print("no time before attack, time overdue: ", time_before_attack)
+
+    for position in agent_walk["positions"]:
+        msc = zone_dict[position][0]
+        vlr = zone_dict[position][1]
+        #only send packet if msc changes, its only then an invoke update request is needed
+        if prev_msc != msc:
+            sctpDataPkt.data = updateImsiVlrMscInPacket(imsi, vlr, msc, sctpDataPkt.data)
+            sk.sctp_send(msg=sctpDataPkt.data,ppid=0x03000000,flags=0, stream=stream_id)
+            prev_msc = msc
+        
+
+## Starts an attack after a random amount of time
+#
+# @param[in] attack     kind of attack (invoke, dod...)
+# @param[in] layer      the sctp chunk data that will be sent
+# @param[in] src_port   the sctp src port that is used when sending messages to the server
+# @param[in] dst_port   the port of the sctp server
+
+def launchAttack(attack, layer, src_port, dst_port):
+    wait_attack = random.randint(5,10)
+    print("attack will occur after ", wait_attack, " sec.")
+    #This is the time the attack should occur
+    time_for_attack = time.time() + wait_attack
+
+    if attack == AttackEnum.invoke.value:
+        # send a invoke update request from a MSC in another network
+        agent_id = 0
+        agent_attack_list = getAttackAgentList('walk_invoke_attack.json')
+        agent_walk = agent_attack_list[str(agent_id)]
+        src_port = 60000
+        
+        client = threading.Thread(target=invokeClientAttack, args=(agent_id, layer, src_port, dst_port, agent_walk, time_for_attack))
+        client.start()
+
+    elif attack == AttackEnum.dod.value:
+        # starts multiple clients and then at a certain time all clients starts to send data toward the server
+        agent_id = 0
+        agent_attack_list = getAttackAgentList('walk_dod_attack.json')
+        agent_walk = agent_attack_list[str(agent_id)]
+        src_port = 60000
+
+        NUM_ATTACKERS = 1000
+        for i in range(0,NUM_ATTACKERS):
+            client = threading.Thread(target=invokeClientAttack, args=(agent_id, layer, src_port, dst_port, agent_walk, time_for_attack))
+            client.start()
+            src_port += 1
+
+
 
 ## returns an dictionary containing the imsi number, if the file containing the imsi
 # numbers doesn't exist, the file is created. the key to the imsi dictionary is the agent id
@@ -156,21 +254,20 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='SCTP pcap client creator')
     parser.add_argument('--dport', metavar='<sctp dst port>', type=int,
                         help='server port (0-65536)', default=36412)
-    parser.add_argument('--num_clients', metavar='<number of clients>', type=int,
-                        help='Number of parallel sctp clients that this script will try to keep running', default=5)
     parser.add_argument('--sec_to_run', metavar='<number of seconds to run>', type=int,
                         help='The client generator will try to run the specified number of clients for this time', default=20)
+    parser.add_argument('--attack', metavar='<attack number>', type=int,
+                        help='1 = invoke update attack', default=0)
 
     args = parser.parse_args()
+    dst_port = args.dport
+    sec_to_run = args.sec_to_run
+    attack = args.attack
+    
+    SLEEP_TIME_ENOUGH_CLIENTS = 1
     src_port = 10000
     stream_id = 0
-    dst_port = args.dport
-
-    sec_to_run = args.sec_to_run
-    num_clients = args.num_clients
-   
     clients_started = 0
-    SLEEP_TIME_ENOUGH_CLIENTS = 1
     MAX_SRC_PORT = 65536
     layer = getInvokeUpdatePacket()
 
@@ -181,9 +278,12 @@ if __name__ == '__main__':
     agent_list = getAgentList()
     zone_dict = getZoneDict()
     num_agents = len(agent_list)
+    imsi_dict = getImsiDict()
+
     print("number of agents: ", num_agents)
 
-    imsi_dict = getImsiDict()
+    if attack > 0:
+        launchAttack(attack, copy.copy(layer), src_port, dst_port)
  
     while TIME_LEFT:
         if agent_id < num_agents:
@@ -191,8 +291,7 @@ if __name__ == '__main__':
             if src_port > MAX_SRC_PORT:
                 src_port = 0
             print("starting agent id: ",agent_id, " and src_port: ",src_port)
-
-            start_client(agent_id, copy.copy(layer), src_port, dst_port)
+            startClient(agent_id, copy.copy(layer), src_port, dst_port, agent_list[str(agent_id)])
             agent_id += 1
 
         else:
