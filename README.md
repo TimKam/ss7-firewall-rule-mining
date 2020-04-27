@@ -3,9 +3,7 @@ This repository contains code that runs simulations for anomaly detection in SS7
 
 * In the folder [simulator](./simulator), you find [grid world-based](./simulator/gridworld) and [graph-based](./simulator/network) simulator tools.
 
-* In the folder [anomaly-detector](./anomaly-detector), you find a Bayesian filter-approach for identifying malicious agents (attackers) in the grid world, and for identifying corrupted nodes in the graph.
-
-* In the folder [python-simulation](./python-simulation), you find some tools and utilities to play around with SS7 messages.
+* In the root folder, you find two Jupyter notebooks that run the anomaly detection scripts.
 
 **Authors**:
 
