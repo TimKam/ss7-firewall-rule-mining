@@ -126,7 +126,7 @@ const startSimulation = () => {
             selector: 'node',
             style: {
             'background-color': '#666',
-            'label': 'data(id)'
+            // 'label': 'data(id)'
             }
         },
     
@@ -196,15 +196,16 @@ window.addEventListener('DOMContentLoaded', _ => {
     const showButton = document.getElementById('show-button')
     showButton.onclick = () => {
         if (showAttacker) {
-            cy.$id(attacker).style({'background-color': '#545454'})
+            cy.$id(attacker).style({'background-color': '#F0EEE3'})
             showButton.text = "Show Attacker"
         } else {
-            cy.$id(attacker).style({'background-color': '#EABAB9'})
+            cy.$id(attacker).style({'background-color': '#D7B17C'})
             showButton.text = "Hide Attacker"
         }
         showAttacker = !showAttacker
     }
-    startSimulation()
+    window.setTimeout(() => startSimulation(), 500)
+    
 })
 
 function updateConfig (id, value) {

@@ -1,4 +1,4 @@
-// https://gist.github.com/bluesmoon/7925696
+// Adapted from https://gist.github.com/bluesmoon/7925696
 
 let spareRandom = null;
 
@@ -15,10 +15,10 @@ function normalRandom()
 	{
 		do
 		{
-			u = Math.random()*2-1
-			v = Math.random()*2-1
+			u = Math.random() * 2 - 1
+			v = Math.random() * 2 - 1
 
-			s = u*u+v*v;
+			s = u * u + v * v
 		} while(s === 0 || s >= 1)
 
 		mul = Math.sqrt(-2 * Math.log(s) / s)
@@ -41,11 +41,11 @@ function normalRandomInRange(min, max)
 	return val
 }
 
-function lnRandomScaled(gmean, gstddev, max)
+function lnRandomScaled(gMean, gStdDev, max)
 {
 	let r = normalRandomInRange(0, max)
 
-    r = r * Math.log(gstddev) + Math.log(gmean)
+    r = r * Math.log(gStdDev) + Math.log(gMean)
     
     r = Math.round(Math.exp(r)) - 1
     if (r > max && r < 0) return 0
