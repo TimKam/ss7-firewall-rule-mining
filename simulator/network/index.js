@@ -20,6 +20,7 @@ let edges
 let nodes 
 let hubs
 let attacker
+const networkHistory = []
 
 // utils
 const genRandomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min
@@ -61,7 +62,7 @@ const genGraphBasedConnection = (source, target) => {
         hubs.forEach(hubId => cy.$id(hubId).style({'background-color': '#73A790'}))
         document.getElementById('show-button').classList.remove('disabled')
     }
-    if (Math.random() < (aggressionLevel / 5) && target != attacker) source = attacker
+    // if (Math.random() < (aggressionLevel / 5) && target != attacker) source = attacker
     // connect to neighboring node
     if (Math.random() < 1 - hubFixation && (source != attacker || Math.random() < 1 - aggressionLevel)) {
         const distances = nodes.map((node, index) => {
@@ -184,8 +185,9 @@ const startSimulation = () => {
                 edges[edgeId] = edge
                 cy.add([edge])
             }
-            const download = { edges, nodes }
-            const uriContent = `data:text/plain;charset=utf-8,${encodeURIComponent(JSON.stringify(download))}`
+            const historyEntry = { edges, nodes }
+            networkHistory.add(historyEntry)
+            const uriContent = `data:text/plain;charset=utf-8,${encodeURIComponent(JSON.stringify(networkHistory))}`
             document.getElementById('log-button').href = uriContent
         }, speed)
     )
