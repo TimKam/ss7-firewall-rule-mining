@@ -4,6 +4,7 @@
 
 <head>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.9.4/cytoscape.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jstat@latest/dist/jstat.min.js"></script>
     <script src="index.js"></script>
     <script src="distUtils.js"></script>
     <link rel="stylesheet" type="text/css" href="./index.css">
@@ -27,13 +28,15 @@
         <br>
         <div id="config">
                 <input type="text" id="nod-tracker" value="Nodes: 40">
-                <input class="config-item" id="nod-slider" type="range" min="21" max="100" value="40" class="slider" id="myRange" onchange="updateConfig(this.id, this.value);"><br>
+                <input class="config-item" id="nod-slider" type="range" min="21" max="100" value="40" class="slider" onchange="updateConfig(this.id, this.value);"><br>
                 <input type="text" id="agg-tracker" value="Aggression Level: 45">
-                <input class="config-item" id="agg-slider" type="range" min="0" max="100" value="45" class="slider" id="myRange" onchange="updateConfig(this.id, this.value);"><br>
+                <input class="config-item" id="agg-slider" type="range" min="0" max="100" value="45" class="slider" onchange="updateConfig(this.id, this.value);"><br>
                 <input type="text" id="fix-tracker" value="Hub Fixation: 50">
-                <input class="config-item" id="fix-slider" type="range" min="0" max="100" value="50" class="slider" id="myRange" onchange="updateConfig(this.id, this.value);">
+                <input class="config-item" id="fix-slider" type="range" min="0" max="100" value="50" class="slider" onchange="updateConfig(this.id, this.value);">
                 <input type="text" id="spe-tracker" value="Speed: 10">
-                <input class="config-item" id="spe-slider" type="range" min="0" max="100" value="10" class="slider" id="myRange" onchange="updateConfig(this.id, this.value);">
+                <input class="config-item" id="spe-slider" type="range" min="0" max="100" value="10" class="slider" onchange="updateConfig(this.id, this.value);">
+                <input type="text" id="attack-from-hub" value="Attack from Hub">
+                <input class="config-item" id="attack-from-hub-checkbox" type="checkbox"  unchecked onchange="updateConfig(this.id, this.unchecked || this.checked);">
         </div>
     </div>
     <div class="reload-hint"><strong>Click "Restart" to apply config!</strong></div>
