@@ -76,7 +76,7 @@ def generate_graph(num_nodes, num_hubs, ticks, seed, attacker_at_hub, attacker_a
                 graph[attack_edge] = 0
             graph[attack_edge] += 1
 
-    G = networkx.Graph()
+    G = networkx.DiGraph()
     for node, (x,y) in nodes.items():
         G.add_node(node, x = x, y = y)
     for (u,v),w in graph.items():
