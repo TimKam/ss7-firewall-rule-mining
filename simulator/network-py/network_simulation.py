@@ -47,6 +47,7 @@ def generate_graph(num_nodes, num_hubs, ticks, seed, attacker_at_hub, attacker_a
                          }
 
     graph = dict()
+    attacks = list()
 
     # simulate connections
     for tick in range(ticks):
@@ -71,10 +72,10 @@ def generate_graph(num_nodes, num_hubs, ticks, seed, attacker_at_hub, attacker_a
             while target == attacker:
                 target = numpy.random.choice(the_nodes)
 
-            attack_edge = (attacker, target)
-            if attack_edge not in graph:
-                graph[attack_edge] = 0
-            graph[attack_edge] += 1
+            # an attack means that a user moves from some other node to the
+            # attacker node, not the other way around!
+            # but we still call the attacked node the target
+            attacks.append((target, attacker))
 
     G = networkx.DiGraph()
     for node, (x,y) in nodes.items():
@@ -82,7 +83,7 @@ def generate_graph(num_nodes, num_hubs, ticks, seed, attacker_at_hub, attacker_a
     for (u,v),w in graph.items():
         G.add_edge(u, v, weight = w)
 
-    return G, hubs, attacker
+    return G, attacks, hubs, attacker
 
 
 def serialise_graph(G, hubs, attacker):
@@ -112,7 +113,9 @@ def serialise_graph(G, hubs, attacker):
 @click.option("--attacker-activity", type = float, default = 0.1)
 @click.option("--hub-fixation",      type = float, default = 0.2)
 def run(num_nodes, num_hubs, ticks, seed, attacker_at_hub, attacker_activity, hub_fixation):
-    G, hubs, attacker = generate_graph(num_nodes, num_hubs, ticks, seed, attacker_at_hub, attacker_activity, hub_fixation)
+    G, G_attack, hubs, attacker = generate_graph(num_nodes, num_hubs, ticks, seed, attacker_at_hub, attacker_activity, hub_fixation)
+
+    # overlay the graphs
 
     # write the graph to stdout
     print(serialise_graph(G, hubs, attacker))
