@@ -9,7 +9,7 @@ def sample_coordinates():
 
 def truncated_exponential(rmin = 0, rmax = 2**0.5):
     while True:
-        r = numpy.random.exponential(scale = 0.1)
+        r = numpy.random.exponential(scale = 0.05)
         if rmin <= r < rmax:
             return r
 
