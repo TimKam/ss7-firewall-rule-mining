@@ -48,18 +48,18 @@ def generate_graph(num_nodes, num_hubs, ticks, seed, attacker_at_hub, attacker_a
         attacker = numpy.random.choice(the_nodes)
 
     # precompute lists of nearest neighbours
-    nearest_neighbours_untrimmed = { node : sorted( [ (other, ((nx-ox)**2+(ny-oy)**2)**0.5) for other, (ox,oy) in nodes.items() ]
+    nearest_neighbours = { node : sorted( [ (other, ((nx-ox)**2+(ny-oy)**2)**0.5) for other, (ox,oy) in nodes.items() ]
                                         , key = lambda p: p[1]
                                         )
                              for node, (nx, ny) in nodes.items()
                          }
     # trim lists of nearest neighbours
-    nearest_neighbours = {}
-    for key, value in nearest_neighbours_untrimmed.items():
-        if key in hubs:
-            nearest_neighbours[key] = value[:15+random.randint(0,10)]
-        else:
-            nearest_neighbours[key] = value[:5+random.randint(0,5)]
+    # nearest_neighbours = {}
+    # for key, value in nearest_neighbours_untrimmed.items():
+    #     if key in hubs:
+    #         nearest_neighbours[key] = value[:15+random.randint(0,10)]
+    #     else:
+    #         nearest_neighbours[key] = value[:5+random.randint(0,5)]
 
     # training data
     # the connections that will be in the graph
@@ -80,13 +80,13 @@ def generate_graph(num_nodes, num_hubs, ticks, seed, attacker_at_hub, attacker_a
             if numpy.random.rand() < hub_to_hub_probability:
                 target = pick_target([(n,d) for (n,d) in nearest_neighbours[source] if n in hubs])
             else:
-                target = pick_target(nearest_neighbours[source])
+                target = pick_target(nearest_neighbours[source][:15+random.randint(0,10)])
 
         # normal nodes: fix on a hub or choose among all nodes
         elif numpy.random.rand() < hub_fixation:
             target = pick_target([(n,d) for (n,d) in nearest_neighbours[source] if n in hubs])
         else:
-            target = pick_target(nearest_neighbours[source])
+            target = pick_target(nearest_neighbours[source][:5+random.randint(0,5)])
 
         edge = (source, target)
 
